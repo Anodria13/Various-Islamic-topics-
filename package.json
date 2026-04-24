@@ -1,16 +1,8 @@
 {
   "name": "islamiyat-static",
   "private": true,
-  "version": "1.0.0",
-  "type": "module",
   "scripts": {
-    "dev": "vite --port=3000 --host=0.0.0.0",
-    "build": "vite build",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "adhan": "^4.4.3",
-    "vite": "^6.2.0",
-    "vite-plugin-pwa": "^1.2.0"
+    "dev": "npx serve -l 3000 .",
+    "build": "mkdir -p dist && cp index.html style.css script.js dist/"
   }
 }
