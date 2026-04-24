@@ -30,6 +30,19 @@
 </head>
 <body class="bg-gradient-to-b from-[#C9DBD3] to-[#B8D0C7] dark:from-[#11231A] dark:to-[#0A120E] bg-fixed text-[#1C6B4F] dark:text-[#E2E8F0] font-['Cairo'] transition-colors duration-300 min-h-screen">
     
+    <!-- Offline Overlay -->
+    <div id="offline-overlay" class="fixed inset-0 z-[100] bg-[#C9DBD3] dark:bg-[#11231A] flex flex-col items-center justify-center p-6 text-center hidden">
+        <div class="w-24 h-24 bg-red-500/10 rounded-full flex items-center justify-center mb-6">
+            <i data-lucide="wifi-off" class="w-12 h-12 text-red-500"></i>
+        </div>
+        <h2 id="offline-title" class="text-3xl font-black text-[#1C6B4F] dark:text-[#34D399] mb-4">لا يوجد اتصال بالإنترنت</h2>
+        <p id="offline-desc" class="text-lg opacity-80 max-w-md">يرجى التحقق من اتصالك بالإنترنت للوصول إلى محتويات التطبيق.</p>
+        <button onclick="window.location.reload()" class="mt-8 px-8 py-4 bg-[#1C6B4F] dark:bg-[#34D399] text-[#C9DBD3] dark:text-[#11231A] rounded-2xl font-bold hover:opacity-90 transition-all flex items-center gap-3">
+            <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+            <span id="offline-retry">إعادة المحاولة</span>
+        </button>
+    </div>
+
     <!-- Top Bar -->
     <header class="fixed top-0 left-0 right-0 z-50 bg-[#C9DBD3]/90 dark:bg-[#11231A]/90 backdrop-blur-xl border-b border-white/40 dark:border-[#1C3B2B] px-4 py-3 flex items-center justify-between transition-colors">
         <h1 id="app-title" class="text-xl font-extrabold text-[#1C6B4F] dark:text-[#34D399]">إسلاميات</h1>

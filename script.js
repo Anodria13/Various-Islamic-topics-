@@ -131,6 +131,9 @@ const uiDict = {
     'تعديل التاريخ الهجري (بالأيام)': 'Hijri Date Adjustment (+/- days)',
     'سورة البقرة، 144': 'Al-Baqarah, 144',
     'التكرار': 'Repeat',
+    'لا يوجد اتصال بالإنترنت': 'No Internet Connection',
+    'يرجى التحقق من اتصالك بالإنترنت للوصول إلى محتويات التطبيق.': 'Please check your internet connection to access the app contents.',
+    'إعادة المحاولة': 'Retry',
     'الحديث التالي': 'Next Hadith',
     'الحديث السابق': 'Previous Hadith',
     'مشاركة': 'Share',
@@ -1101,7 +1104,20 @@ playBtn.onclick = () => {
 };
 
 // --- Main Init ---
+// Add Offline Detection
+function updateOnlineStatus() {
+    const overlay = document.getElementById('offline-overlay');
+    if (navigator.onLine) {
+        overlay.classList.add('hidden');
+    } else {
+        overlay.classList.remove('hidden');
+    }
+}
+window.addEventListener('online', updateOnlineStatus);
+window.addEventListener('offline', updateOnlineStatus);
+
 window.onload = () => {
+    updateOnlineStatus();
     initTheme();
     initLanguage();
     
