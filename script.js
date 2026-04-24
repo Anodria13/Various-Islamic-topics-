@@ -98,6 +98,71 @@ async function shareText(text) {
 }
 
 // --- UI Controls ---
+
+const uiDict = {
+    'إسلاميات': 'Islamiyat',
+    'البحث عن مدينة...': 'Search for a city...',
+    'الصلاة القادمة': 'Next Prayer',
+    'أسماء الله': 'Names of Allah',
+    'القبلة': 'Qibla',
+    'التقويم': 'Calendar',
+    'أسماء الله الحسنى': 'Names of Allah (Asma ul-Husna)',
+    'اتجاه القبلة': 'Qibla Direction',
+    'تحديد دقيق لاتجاه الكعبة المشرفة من موقعك الحالي': 'Accurate direction of the Kaaba from your current location',
+    'البحث عن القبلة...': 'Searching for Qibla...',
+    'الموقع الحالي': 'Current Location',
+    'جاري التحديد': 'Locating...',
+    'المسافة لمكة': 'Distance to Makkah',
+    'تفعيل الموقع الجغرافي': 'Enable Geolocation',
+    'نحتاج للوصول لموقعك لتوفير اتجاه دقيق للغاية للقبلة بناءً على إحداثياتك الحالية.': 'We need location access to provide accurate Qibla direction based on your current coordinates.',
+    'تحديد الموقع': 'Locate Me',
+    'ابحث عن سورة...': 'Search for Surah...',
+    'سورة': 'Surah',
+    'ابحث عن إذاعة...': 'Search for Radio...',
+    'القراء': 'Reciters',
+    'قنوات الراديو': 'Radio Channels',
+    'أذكار ورقية': 'Azkar & Ruqyah',
+    'تفسير وفتاوى': 'Tafsir & Fatwas',
+    'إذعات متنوعة': 'Misc Radios',
+    'الأقسام': 'Categories',
+    'أذكار الصباح': 'Morning Azkar',
+    'الأربعون النووية': '40 Nawawi Hadith',
+    'اختر تلاوة...': 'Select Recitation...',
+    'جارِ التشغيل': 'Playing',
+    'الصلاة': 'Prayer',
+    'القرآن': 'Quran',
+    'الأذكار': 'Azkar',
+    'الأحاديث': 'Hadith',
+    'الراديو': 'Radio',
+    'ابحث عن قارئ...': 'Search for Reciter...',
+    'إغلاق': 'Close',
+    'إعدادات التقويم': 'Calendar Settings',
+    'تعديل التاريخ الهجري (بالأيام)': 'Hijri Date Adjustment (+/- days)',
+    'سورة البقرة، 144': 'Al-Baqarah, 144',
+    'التكرار': 'Repeat',
+    'الحديث التالي': 'Next Hadith',
+    'الحديث السابق': 'Previous Hadith',
+    'مشاركة': 'Share',
+    'نسخ': 'Copy'
+};
+
+function applyTranslations() {
+    if (state.language === 'en') {
+        const walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+        let n;
+        while(n = walk.nextNode()) {
+            let txt = n.nodeValue.trim();
+            if(uiDict[txt]) {
+                n.nodeValue = n.nodeValue.replace(txt, uiDict[txt]);
+            }
+        }
+        document.querySelectorAll('[placeholder]').forEach(el => {
+            let pt = el.getAttribute('placeholder').trim();
+            if(uiDict[pt]) el.setAttribute('placeholder', uiDict[pt]);
+        });
+    }
+}
+
 function initTheme() {
     if (state.theme === 'dark') document.documentElement.classList.add('dark');
     else document.documentElement.classList.remove('dark');
@@ -116,10 +181,11 @@ function initLanguage() {
     document.getElementById('lang-toggle').innerText = isEn ? 'AR' : 'EN';
     document.getElementById('app-title').innerText = isEn ? 'Islamiyat' : 'إسلاميات';
     
+    applyTranslations();
     document.getElementById('lang-toggle').onclick = () => {
         state.language = state.language === 'ar' ? 'en' : 'ar';
         localStorage.setItem('lang', state.language);
-        location.reload(); // Simplest way to re-render everything
+        location.reload();
     };
 }
 
@@ -185,10 +251,11 @@ async function initPrayer() {
         startPrayerCountdown(pureTimings);
         
         // Approximate Hijri Date using standard JS Intl
-        const hijriStr = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', {day: 'numeric', month: 'long', year : 'numeric'}).format(new Date());
         
+        const hijriStr = new Intl.DateTimeFormat(state.language === 'en' ? 'en-US-u-ca-islamic' : 'ar-SA-u-ca-islamic', {day: 'numeric', month: 'long', year : 'numeric'}).format(new Date(Date.now() + (hijriOffset * 86400000)));
         document.getElementById('hijri-date-top').innerText = hijriStr;
         document.getElementById('hijri-date-badge').innerText = hijriStr;
+
 
         // Update Location Info
         document.getElementById('location-city-name').innerText = city;
@@ -214,7 +281,7 @@ function renderPrayerGrid(timings) {
     ];
 
     grid.innerHTML = prayers.map(p => `
-        <div class="premium-card p-8 flex flex-col items-center justify-center text-center">
+        <div class="premium-card p-8 flex flex-col items-center justify-center text-center ${p.key === 'Isha' ? 'col-span-2' : ''}">
             <div class="w-12 h-12 bg-[#059669]/5 rounded-2xl flex items-center justify-center mb-4">
                 <i data-lucide="${p.icon}" class="w-6 h-6 text-[#1C6B4F]"></i>
             </div>
@@ -473,9 +540,53 @@ function closeQibla() {
     document.getElementById('qibla-view').classList.add('hidden');
 }
 
+
 function openCalendar() {
-    alert('سيتم فتح التقويم الهجري قريباً');
+    document.getElementById('calendar-modal').classList.remove('hidden');
+    updateCalendarDisplay();
 }
+
+document.getElementById('close-calendar').addEventListener('click', () => {
+    document.getElementById('calendar-modal').classList.add('hidden');
+});
+
+let hijriOffset = parseInt(localStorage.getItem('hijriOffset')) || 0;
+document.getElementById('hijri-offset').innerText = hijriOffset;
+
+document.getElementById('hijri-minus').addEventListener('click', () => {
+    hijriOffset--;
+    localStorage.setItem('hijriOffset', hijriOffset);
+    document.getElementById('hijri-offset').innerText = hijriOffset;
+    updateCalendarDisplay();
+    // Restart prayer layout to update hijri date top header
+    initPrayer();
+});
+
+document.getElementById('hijri-plus').addEventListener('click', () => {
+    hijriOffset++;
+    localStorage.setItem('hijriOffset', hijriOffset);
+    document.getElementById('hijri-offset').innerText = hijriOffset;
+    updateCalendarDisplay();
+    // Restart prayer layout to update hijri date top header
+    initPrayer();
+});
+
+function updateCalendarDisplay() {
+    let adhanDateParam = 'today';
+    const loc = state.location.coords ? `${state.location.coords.lat},${state.location.coords.lng}` : state.location.city;
+    const cacheKey = `prayer_${loc}_offset${hijriOffset}`;
+    
+    // Attempting to show the new date taking offset into account
+    // For simplicity, we just format the current date + offset
+    const d = new Date();
+    d.setDate(d.getDate() + hijriOffset);
+    const df = new Intl.DateTimeFormat(state.language === 'ar' ? 'ar-FR-u-ca-islamic' : 'en-US-u-ca-islamic', {
+        day: 'numeric', month: 'long', year: 'numeric'
+    }).format(d);
+    
+    document.getElementById('calendar-hijri-display').innerText = df;
+}
+
 
 // --- Feature: Quran ---
 async function initQuran() {
@@ -492,15 +603,19 @@ async function initQuran() {
         
         // Manual high quality reciters
         state.quran.reciters = [
-            { id: 'quran-com-mishary', name: state.language === 'ar' ? 'مشاري العفاسي (HQ)' : 'Mishary Alafasy (HQ)', server: 'https://download.quranicaudio.com/qdc/mishari_al_afasy/murattal/' },
-            { id: 'quran-com-maher', name: state.language === 'ar' ? 'ماهر المعيقلي (HQ)' : 'Maher Al-Muaiqly (HQ)', server: 'https://download.quranicaudio.com/qdc/maher_al_muaiqly/murattal/' }
+            { id: 'quran-com-mishary', name: state.language === 'ar' ? 'الشيخ مشاري العفاسي (HQ)' : 'Mishary Alafasy (HQ)', server: 'https://download.quranicaudio.com/qdc/mishari_al_afasy/murattal/' },
+            { id: 'quran-com-maher', name: state.language === 'ar' ? 'الشيخ ماهر المعيقلي (HQ)' : 'Maher Al-Muaiqly (HQ)', server: 'https://download.quranicaudio.com/qdc/maher_al_muaiqly/murattal/' }
         ];
 
         recData.reciters.forEach(r => {
             if (r.moshaf && r.moshaf.length > 0) {
+                let reciterName = r.name;
+                if (lang === 'ar' && !reciterName.startsWith('القارئ') && !reciterName.startsWith('الشيخ')) {
+                    reciterName = `الشيخ ${reciterName}`;
+                }
                 state.quran.reciters.push({
                     id: `rec_${r.id}`,
-                    name: r.name,
+                    name: reciterName,
                     server: r.moshaf[0].server
                 });
             }
@@ -524,7 +639,7 @@ function renderSurahs() {
             <div onclick="openSurah(${s.number})" class="premium-card p-6 flex items-center justify-between cursor-pointer group">
                 <div class="flex items-center gap-5">
                     <div class="w-14 h-14 bg-[#1C6B4F]/5 rounded-[1.25rem] flex items-center justify-center font-black text-[#1C6B4F] dark:text-[#34D399] transition-all group-hover:bg-[#1C6B4F] group-hover:text-white">${s.number}</div>
-                    <div class="text-right">
+                    <div class="text-start">
                         <h3 class="font-extrabold text-xl mb-1 group-hover:text-[#1C6B4F] dark:group-hover:text-[#34D399] transition-colors">${s.name}</h3>
                         <div class="flex items-center gap-2 opacity-40 text-[10px] font-black uppercase tracking-widest">
                             <span>${s.numberOfAyahs} آية</span>
@@ -578,8 +693,8 @@ async function openSurah(num) {
                     <div class="flex justify-between items-start">
                         <span class="w-10 h-10 rounded-full border border-white/40 dark:border-[#1C3B2B] flex items-center justify-center opacity-40 font-bold">${a.aya}</span>
                     </div>
-                    <p class="text-2xl font-['Amiri'] leading-relaxed text-right font-bold" style="font-size: ${state.fontSize}px">${a.arabic_text}</p>
-                    <p class="text-sm opacity-60 text-right">${a.translation}</p>
+                    <p class="text-2xl font-['Amiri'] leading-relaxed text-start font-bold" style="font-size: ${state.fontSize}px">${a.arabic_text}</p>
+                    <p class="text-sm opacity-60 text-start">${a.translation}</p>
                 </div>
             `).join('');
         } else {
@@ -591,7 +706,7 @@ async function openSurah(num) {
                     <div class="flex justify-between items-start">
                         <span class="w-10 h-10 rounded-full border border-white/40 dark:border-[#1C3B2B] flex items-center justify-center opacity-40 font-bold">${a.numberInSurah}</span>
                     </div>
-                    <p class="text-2xl font-['Amiri'] leading-relaxed text-right font-bold" style="font-size: ${state.fontSize}px">${a.text}</p>
+                    <p class="text-2xl font-['Amiri'] leading-relaxed text-start font-bold" style="font-size: ${state.fontSize}px">${a.text}</p>
                 </div>
             `).join('');
         }
@@ -642,8 +757,22 @@ async function initRadio() {
             else if (n === 'إذاعة القرآن الكريم' || n.includes('الإذاعة العامة') || n.includes('محطة')) cat = 'channel';
             // Notice: We intentionally do NOT blanket map "إذاعة" to "channel", 
             // because most Mp3Quran API entries are "إذاعة [اسم القارئ]" and correctly belong to "reciter".
+
+            let radioName = r.name;
+            if (cat === 'reciter' && lang === 'ar') {
+                if (radioName.startsWith('إذاعة ')) {
+                    const reciterPart = radioName.replace('إذاعة ', '');
+                    if (!reciterPart.startsWith('القارئ') && !reciterPart.startsWith('الشيخ')) {
+                        radioName = `إذاعة الشيخ ${reciterPart}`;
+                    }
+                } else {
+                    if (!radioName.startsWith('القارئ') && !radioName.startsWith('الشيخ')) {
+                        radioName = `الشيخ ${radioName}`;
+                    }
+                }
+            }
             
-            return { ...r, url: secureUrl, category: cat };
+            return { ...r, name: radioName, url: secureUrl, category: cat };
         });
 
         // Combine manual and API radios
@@ -686,7 +815,7 @@ function renderRadios() {
                 <div class="w-14 h-14 bg-[#1C6B4F]/5 rounded-[1.25rem] flex items-center justify-center text-[#1C6B4F] dark:text-[#34D399] group-hover:bg-[#1C6B4F] group-hover:text-white transition-all">
                     <i data-lucide="radio" class="w-7 h-7"></i>
                 </div>
-                <h3 class="font-extrabold text-lg group-hover:text-[#1C6B4F] dark:group-hover:text-[#34D399] transition-colors text-right">${r.name}</h3>
+                <h3 class="font-extrabold text-lg group-hover:text-[#1C6B4F] dark:group-hover:text-[#34D399] transition-colors text-start">${r.name}</h3>
             </div>
             <div class="flex items-center gap-2">
                 <button onclick="toggleFavoriteRadio(event, '${r.url}')" class="p-3 rounded-xl hover:bg-black/5 dark:hover:bg-white/5 transition-all ${state.favorites.radios.includes(r.url) ? 'text-red-500' : 'opacity-20'}">
@@ -698,6 +827,7 @@ function renderRadios() {
             </div>
         </div>
     `).join('');
+    if(typeof applyTranslations === 'function') applyTranslations();
     lucide.createIcons();
 }
 
@@ -724,7 +854,7 @@ async function initAzkar() {
         // Render cats list
         const catList = document.getElementById('azkar-cats-modal');
         catList.innerHTML = Object.keys(data).map(cat => `
-            <button onclick="setAzkarCategory('${cat}')" class="w-full text-right p-4 hover:bg-[#059669]/5 rounded-2xl font-bold transition-all">${cat}</button>
+            <button onclick="setAzkarCategory('${cat}')" class="w-full text-start p-4 hover:bg-[#059669]/5 rounded-2xl font-bold transition-all">${cat}</button>
         `).join('');
         
         renderAzkar();
@@ -752,9 +882,9 @@ function renderAzkar() {
 
         return `
             <div class="premium-card p-10 flex flex-col ${complete ? 'opacity-40 grayscale scale-[0.98]' : ''} transition-all duration-500">
-                <p class="text-3xl font-['Amiri'] leading-relaxed text-right mb-10 font-bold">${z.content}</p>
+                <p class="text-3xl font-['Amiri'] leading-relaxed text-start mb-10 font-bold">${z.content}</p>
                 <div class="flex items-center justify-between border-t border-white/40 dark:border-[#1C3B2B] pt-8">
-                    <div class="text-right">
+                    <div class="text-start">
                         <span class="text-[10px] opacity-40 font-black block mb-1 uppercase tracking-widest">التكرار</span>
                         <div class="flex items-baseline gap-1">
                             <span class="font-black text-2xl text-[#1C6B4F] dark:text-[#34D399]">${current}</span>
@@ -1085,12 +1215,13 @@ function renderReciters() {
     list.innerHTML = state.quran.reciters
         .filter(r => r.name.toLowerCase().includes(query))
         .map(r => `
-            <button onclick="selectReciter('${r.id}')" class="w-full flex items-center gap-3 p-3 rounded-2xl hover:bg-[#059669]/10 text-right transition-all">
+            <button onclick="selectReciter('${r.id}')" class="w-full flex items-center gap-3 p-3 rounded-2xl hover:bg-[#059669]/10 text-start transition-all">
                 <div class="w-8 h-8 rounded-full bg-[#059669]/5 flex items-center justify-center font-bold text-[#1C6B4F]">${r.name.charAt(0)}</div>
                 <span class="font-bold truncate">${r.name}</span>
             </button>
         `).join('');
-}
+if(typeof applyTranslations === 'function') applyTranslations();
+    }
 
 function selectReciter(id) {
     state.quran.selectedReciter = id;

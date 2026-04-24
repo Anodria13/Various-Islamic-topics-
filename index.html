@@ -89,7 +89,7 @@
                                     <span id="next-prayer-time" class="text-7xl font-black">-</span>
                                 </div>
                             </div>
-                            <div class="text-right">
+                            <div class="text-start">
                                 <div class="flex items-center gap-3 bg-black/10 px-6 py-3 rounded-2xl backdrop-blur-xl border border-white dark:border-[#1C3B2B]/5">
                                     <i data-lucide="timer" class="w-5 h-5 animate-pulse text-[#D4AF37]"></i>
                                     <span id="next-prayer-remaining" class="text-2xl font-black">-</span>
@@ -141,7 +141,7 @@
             <div id="qibla-view" class="fixed inset-0 z-[80] bg-gradient-to-b from-[#C9DBD3] to-[#B8D0C7] dark:from-[#11231A] dark:to-[#0A120E] hidden flex flex-col p-6 overflow-x-hidden overflow-y-auto">
                 <div class="flex items-center justify-between mb-8 shrink-0">
                     <button onclick="closeQibla()" class="p-3 bg-white/20 backdrop-blur-md rounded-2xl hover:bg-white/30 transition shadow-sm border border-white dark:border-white/5"><i data-lucide="chevron-right" class="w-6 h-6 text-[#1C6B4F] dark:text-[#6EE7B7]"></i></button>
-                    <div class="text-right flex-1 ml-4">
+                    <div class="text-start flex-1 ms-4">
                         <h2 class="text-3xl sm:text-4xl font-extrabold text-[#1C6B4F] dark:text-[#6EE7B7] mb-1 tracking-tight">اتجاه القبلة</h2>
                         <p class="text-[11px] sm:text-[13px] text-[#6F8F85] dark:text-[#94B3A7] font-bold leading-relaxed">تحديد دقيق لاتجاه الكعبة المشرفة من موقعك الحالي</p>
                     </div>
@@ -218,8 +218,8 @@
                         <div class="absolute top-6 left-6 w-12 h-12 bg-[#C9DBD3] dark:bg-[#1A3829] rounded-2xl flex items-center justify-center border border-white dark:border-white/5 group-hover:bg-[#1C6B4F] dark:bg-[#10B981] group-hover:text-white transition-colors duration-300">
                             <i data-lucide="crosshair" class="w-6 h-6 text-[#1C6B4F] dark:text-[#6EE7B7] group-hover:text-white transition-colors duration-300"></i>
                         </div>
-                        <h3 class="text-[#1C6B4F] dark:text-[#6EE7B7] font-black text-xl mb-3 pr-2">تفعيل الموقع الجغرافي</h3>
-                        <p class="text-[#6F8F85] dark:text-[#94B3A7] text-xs sm:text-sm font-bold leading-relaxed mb-8 pl-[60px] pr-2">نحتاج للوصول لموقعك لتوفير اتجاه دقيق للغاية للقبلة بناءً على إحداثياتك الحالية.</p>
+                        <h3 class="text-[#1C6B4F] dark:text-[#6EE7B7] font-black text-xl mb-3 pe-2">تفعيل الموقع الجغرافي</h3>
+                        <p class="text-[#6F8F85] dark:text-[#94B3A7] text-xs sm:text-sm font-bold leading-relaxed mb-8 ps-[60px] pe-2">نحتاج للوصول لموقعك لتوفير اتجاه دقيق للغاية للقبلة بناءً على إحداثياتك الحالية.</p>
                         <button id="qibla-locate-btn" class="w-full bg-[#1C6B4F] dark:bg-[#10B981] hover:bg-[#15543D] active:scale-[0.98] text-white py-4 sm:py-5 rounded-2xl font-black flex items-center justify-center gap-2 transition-all shadow-[0_8px_20px_rgba(28,107,79,0.3)]">
                             <span>تحديد الموقع</span>
                             <i data-lucide="arrow-left" class="w-5 h-5"></i>
@@ -298,7 +298,7 @@
                 <button id="azkar-cats-btn" class="w-full bg-[#D7E5DF] dark:bg-[#152A1F] p-6 rounded-3xl border border-white/40 dark:border-[#1C3B2B] flex items-center justify-between shadow-sm">
                     <div class="flex items-center gap-4">
                         <i data-lucide="book-open" class="w-6 h-6 text-[#059669]"></i>
-                        <div class="text-right">
+                        <div class="text-start">
                             <span class="text-xs opacity-40 block">الأقسام</span>
                             <span id="active-category-name" class="text-xl font-black">أذكار الصباح</span>
                         </div>
@@ -404,5 +404,32 @@
         // Initialize icons
         lucide.createIcons();
     </script>
+
+    <!-- Calendar Settings Modal -->
+    <div id="calendar-modal" class="fixed inset-0 z-60 bg-black/50 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-[#D7E5DF] dark:bg-[#152A1F] rounded-[2.5rem] w-full max-w-sm flex flex-col overflow-hidden shadow-2xl transition-all">
+            <div class="p-6 border-b border-white/40 dark:border-[#1C3B2B]">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xl font-black text-[#1C6B4F] dark:text-[#6EE7B7]" data-ar="إعدادات التقويم" data-en="Calendar Settings">إعدادات التقويم</h2>
+                    <button id="close-calendar" class="p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-full transition-colors">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6 space-y-6">
+                <div>
+                    <label class="block text-sm font-bold opacity-70 mb-3" data-ar="تعديل التاريخ الهجري (بالأيام)" data-en="Hijri Day Adjustment (+/-)">تعديل التاريخ الهجري (بالأيام)</label>
+                    <div class="flex items-center gap-4 bg-white/30 dark:bg-black/20 p-2 rounded-2xl">
+                        <button id="hijri-minus" class="p-3 bg-white/50 dark:bg-white/10 rounded-xl hover:bg-black/5 cursor-pointer">-</button>
+                        <div id="hijri-offset" class="flex-1 text-center font-bold text-xl">0</div>
+                        <button id="hijri-plus" class="p-3 bg-white/50 dark:bg-white/10 rounded-xl hover:bg-black/5 cursor-pointer">+</button>
+                    </div>
+                </div>
+                <div class="text-center p-4 bg-white/10 rounded-2xl">
+                    <span id="calendar-hijri-display" class="font-bold tracking-wide">...</span>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
